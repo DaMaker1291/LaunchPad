@@ -35,6 +35,7 @@ db.exec(`
     streak INTEGER DEFAULT 0,
     last_active DATE DEFAULT CURRENT_DATE,
     alumni INTEGER DEFAULT 0,
+    parent_id TEXT DEFAULT '',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -555,6 +556,18 @@ db.exec(`
     FOREIGN KEY (posted_by) REFERENCES users(id)
   );
 
+  CREATE TABLE IF NOT EXISTS achievements (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    badge TEXT DEFAULT '',
+    category TEXT CHECK(category IN ('skill','education','volunteer','leadership','competition','other')) DEFAULT 'other',
+    date_earned DATE DEFAULT CURRENT_DATE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
+
   CREATE TABLE IF NOT EXISTS notifications (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
@@ -567,5 +580,9 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
 `);
+
+try { db.prepare("ALTER TABLE users ADD COLUMN parent_id TEXT DEFAULT ''").run(); } catch {}
+try { db.prepare("ALTER TABLE posts ADD COLUMN moderated INTEGER DEFAULT 0").run(); } catch {}
+try { db.prepare("ALTER TABLE comments ADD COLUMN moderated INTEGER DEFAULT 0").run(); } catch {}
 
 export default db;

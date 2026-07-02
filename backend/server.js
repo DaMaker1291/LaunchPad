@@ -11,6 +11,8 @@ import socialRoutes from './routes/social.js';
 import messagingRoutes from './routes/messaging.js';
 import gamificationRoutes from './routes/gamification.js';
 import safetyRoutes from './routes/safety.js';
+import aiCopilotRoutes from './routes/ai-copilot.js';
+import parentRoutes from './routes/parent.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +30,8 @@ app.use('/api/social', socialRoutes);
 app.use('/api/messages', messagingRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/safety', safetyRoutes);
+app.use('/api/ai', aiCopilotRoutes);
+app.use('/api/parent', parentRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: 'LaunchPad v1.0' }));
 
