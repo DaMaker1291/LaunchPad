@@ -1,11 +1,27 @@
 import { Router } from 'express';
 import { authenticateToken } from '../middleware/auth.js';
+import { moderateContent } from '../services/moderation.js';
 
 const router = Router();
+const HF_SPACE = process.env.HF_SPACE_URL || 'https://dgfhgjhj-launchpad-ai.hf.space';
 
-router.post('/essay/review', authenticateToken, (req, res) => {
+async function callHF(endpoint, data) {
+  try {
+    const resp = await fetch(`${HF_SPACE}${endpoint}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data), signal: AbortSignal.timeout(20000),
+    });
+    if (resp.ok) return { source: 'hf', data: await resp.json() };
+    return null;
+  } catch { return null; }
+}
+
+router.post('/essay/review', authenticateToken, async (req, res) => {
   const { essayText, prompt } = req.body;
   if (!essayText) return res.status(400).json({ error: 'Essay text required' });
+
+  const hf = await callHF('/api/ai/essay/review', { essayText, prompt });
+  if (hf) { res.json(hf.data); return; }
 
   const wordCount = essayText.split(/\s+/).length;
   const cliches = ['in today\'s society', 'my passion', 'ever since I was young', 'it was then that I realized', 'through this experience I learned', 'I am honored', 'the journey'];
@@ -24,16 +40,18 @@ router.post('/essay/review', authenticateToken, (req, res) => {
   const toneScore = Math.min(100, Math.max(40, 70 - foundCliches.length * 5 + (hasWeakOpening ? -10 : 5) + (avgSentenceLength > 15 && avgSentenceLength < 25 ? 10 : 0)));
 
   res.json({
-    wordCount,
-    toneScore,
+    wordCount, toneScore,
     recommendations: recommendations.length > 0 ? recommendations : ['Your essay reads well! Consider having a teacher or mentor review it.'],
     stats: { avgSentenceLength: Math.round(avgSentenceLength * 10) / 10, clichesFound: foundCliches.length, weakOpening: hasWeakOpening }
   });
 });
 
-router.post('/resume/review', authenticateToken, (req, res) => {
+router.post('/resume/review', authenticateToken, async (req, res) => {
   const { resumeText } = req.body;
   if (!resumeText) return res.status(400).json({ error: 'Resume text required' });
+
+  const hf = await callHF('/api/ai/resume/review', { resumeText });
+  if (hf) { res.json(hf.data); return; }
 
   const sections = resumeText.toLowerCase();
   const hasEducation = /education|school|university|gpa/.test(sections);
@@ -52,13 +70,22 @@ router.post('/resume/review', authenticateToken, (req, res) => {
   const score = Math.min(100, Math.max(20, 40 + (hasEducation ? 15 : 0) + (hasSkills ? 15 : 0) + (hasExperience ? 15 : 0) + (hasActionVerbs ? 10 : 0) + (hasNumbers ? 5 : 0)));
 
   res.json({
-    score,
-    missing,
+    score, missing,
     recommendations: missing.length > 0
       ? missing.map(m => `Add "${m}" to strengthen your resume.`)
       : ['Strong resume structure! Ensure all dates are consistent and formatting is clean.'],
     sectionsFound: { education: hasEducation, skills: hasSkills, experience: hasExperience, actionVerbs: hasActionVerbs, quantifiable: hasNumbers }
   });
+});
+
+router.post('/moderation/check', authenticateToken, async (req, res) => {
+  const { text, type } = req.body;
+  if (!text) return res.status(400).json({ error: 'Text required' });
+
+  const hf = await callHF('/api/ai/moderation/check', { text, type });
+  if (hf) { res.json(hf.data); return; }
+
+  res.json(moderateContent(text, type));
 });
 
 export default router;

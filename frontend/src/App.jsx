@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import Navbar from './components/Navbar.jsx';
+import Layout from './components/Layout.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Feed from './pages/Feed.jsx';
 import Profile from './pages/Profile.jsx';
@@ -16,8 +16,9 @@ import SkillsHub from './pages/SkillsHub.jsx';
 import Rewards from './pages/Rewards.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
+import { setupPushNotifications } from './services/mobile.js';
 
-const API = 'http://localhost:3001/api';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 export { API };
@@ -26,6 +27,8 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => { setupPushNotifications(); }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -57,30 +60,29 @@ export default function App() {
     setUser(updated); localStorage.setItem('user', JSON.stringify(updated));
   };
 
-  if (loading) return <div className="flex-center" style={{ height: '100vh', background: '#0f0f1a', color: '#a78bfa', fontSize: 20 }}>🚀 LaunchPad loading...</div>;
+  if (loading) return <div className="flex items-center justify-center" style={{ height: '100vh', background: '#0f0f1a', color: '#a78bfa', fontSize: 20 }}>LaunchPad loading...</div>;
 
   return (
     <AuthContext.Provider value={{ user, login, logout, updateUser }}>
-      {user && <Navbar />}
-      <div className="container">
-        <Routes>
-          <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-          <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-          <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-          <Route path="/feed" element={user ? <Feed /> : <Navigate to="/login" />} />
-          <Route path="/profile/:id?" element={user ? <Profile /> : <Navigate to="/login" />} />
-          <Route path="/portfolio/:id?" element={user ? <PortfolioPage /> : <Navigate to="/login" />} />
-          <Route path="/mentorship" element={user ? <Mentorship /> : <Navigate to="/login" />} />
-          <Route path="/university" element={user ? <UniPlanning /> : <Navigate to="/login" />} />
-          <Route path="/work" element={user ? <Work /> : <Navigate to="/login" />} />
-          <Route path="/freelance" element={user ? <Freelance /> : <Navigate to="/login" />} />
-          <Route path="/groups" element={user ? <Groups /> : <Navigate to="/login" />} />
-          <Route path="/events" element={user ? <Events /> : <Navigate to="/login" />} />
-          <Route path="/messages" element={user ? <Messages /> : <Navigate to="/login" />} />
-          <Route path="/skills" element={user ? <SkillsHub /> : <Navigate to="/login" />} />
-          <Route path="/rewards" element={user ? <Rewards /> : <Navigate to="/login" />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+        <Route element={user ? <Layout /> : <Navigate to="/login" />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/profile/:id?" element={<Profile />} />
+          <Route path="/portfolio/:id?" element={<PortfolioPage />} />
+          <Route path="/mentorship" element={<Mentorship />} />
+          <Route path="/university" element={<UniPlanning />} />
+          <Route path="/work" element={<Work />} />
+          <Route path="/freelance" element={<Freelance />} />
+          <Route path="/groups" element={<Groups />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/skills" element={<SkillsHub />} />
+          <Route path="/rewards" element={<Rewards />} />
+        </Route>
+      </Routes>
     </AuthContext.Provider>
   );
 }

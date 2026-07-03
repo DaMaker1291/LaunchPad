@@ -1,7 +1,15 @@
-import { Router } from 'express';
+import express, { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import db from '../database.js';
 import { authenticateToken } from '../middleware/auth.js';
+import multiparty from 'multiparty';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const router = Router();
 
@@ -61,5 +69,26 @@ router.get('/journey/:userId', (req, res) => {
   const entries = db.prepare('SELECT * FROM journey_entries WHERE user_id = ? ORDER BY date DESC').all(req.params.userId);
   res.json({ entries });
 });
+
+// ─── File Upload (local filesystem; swap to S3/Cloudinary in production) ───
+router.post('/upload', authenticateToken, (req, res) => {
+  const form = new multiparty.Form({ maxFilesSize: 50 * 1024 * 1024 });
+  form.parse(req, (err, fields, files) => {
+    if (err) return res.status(400).json({ error: err.message });
+    const fileField = Object.keys(files)[0];
+    if (!fileField) return res.status(400).json({ error: 'No file uploaded' });
+    const file = files[fileField][0];
+    const ext = path.extname(file.originalFilename) || '.bin';
+    const fileName = `${uuidv4()}${ext}`;
+    const destPath = path.join(UPLOAD_DIR, fileName);
+    fs.copyFileSync(file.path, destPath);
+    fs.unlinkSync(file.path);
+    const url = `/uploads/${fileName}`;
+    res.json({ url, fileName: file.originalFilename, size: file.size });
+  });
+});
+
+// Serve uploaded files
+router.use('/uploads', express.static(UPLOAD_DIR));
 
 export default router;

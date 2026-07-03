@@ -28,4 +28,17 @@ export function generateToken(user) {
   return jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
 }
 
+// COPPA: if user is under 15, their profile is invisible to non-authenticated requests
+export function coppaCheck(req, res, next) {
+  const { id } = req.params;
+  if (!id) return next();
+  const target = db.prepare('SELECT id, age, cohort FROM users WHERE id = ?').get(id);
+  if (target && target.cohort === '12-14') {
+    if (!req.headers['authorization']) {
+      return res.status(401).json({ error: 'Authentication required to view this profile' });
+    }
+  }
+  next();
+}
+
 export default JWT_SECRET;

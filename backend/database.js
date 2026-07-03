@@ -579,10 +579,145 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
+
+  CREATE TABLE IF NOT EXISTS work_modules (
+    id TEXT PRIMARY KEY,
+    company TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    category TEXT DEFAULT '',
+    difficulty TEXT CHECK(difficulty IN ('beginner','intermediate','advanced')) DEFAULT 'beginner',
+    duration_hours INTEGER DEFAULT 5,
+    steps TEXT DEFAULT '[]',
+    skills TEXT DEFAULT '[]',
+    deliverables TEXT DEFAULT '[]',
+    rubric TEXT DEFAULT '{}',
+    compensation TEXT DEFAULT '',
+    age_min INTEGER DEFAULT 12,
+    age_max INTEGER DEFAULT 18,
+    sponsored INTEGER DEFAULT 0,
+    sponsor_logo TEXT DEFAULT '',
+    spots_available INTEGER DEFAULT 100,
+    spots_filled INTEGER DEFAULT 0,
+    posted_by TEXT NOT NULL,
+    active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (posted_by) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS work_enrollments (
+    id TEXT PRIMARY KEY,
+    module_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    status TEXT CHECK(status IN ('enrolled','in_progress','submitted','reviewed','completed','dropped')) DEFAULT 'enrolled',
+    current_step INTEGER DEFAULT 0,
+    progress INTEGER DEFAULT 0,
+    started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    submitted_at DATETIME,
+    completed_at DATETIME,
+    FOREIGN KEY (module_id) REFERENCES work_modules(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS work_submissions (
+    id TEXT PRIMARY KEY,
+    enrollment_id TEXT NOT NULL,
+    step_index INTEGER NOT NULL,
+    content TEXT DEFAULT '',
+    file_urls TEXT DEFAULT '[]',
+    notes TEXT DEFAULT '',
+    status TEXT CHECK(status IN ('draft','submitted','approved','revision_needed')) DEFAULT 'draft',
+    reviewer_id TEXT,
+    review_notes TEXT DEFAULT '',
+    review_score INTEGER,
+    submitted_at DATETIME,
+    reviewed_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (enrollment_id) REFERENCES work_enrollments(id),
+    FOREIGN KEY (reviewer_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS certificates (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    module_id TEXT NOT NULL,
+    enrollment_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    issuer TEXT NOT NULL,
+    issuer_logo TEXT DEFAULT '',
+    skills TEXT DEFAULT '[]',
+    grade TEXT CHECK(grade IN ('pass','merit','distinction','excellence')) DEFAULT 'pass',
+    certificate_url TEXT DEFAULT '',
+    issued_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (module_id) REFERENCES work_modules(id),
+    FOREIGN KEY (enrollment_id) REFERENCES work_enrollments(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS credential_verifications (
+    id TEXT PRIMARY KEY,
+    certificate_id TEXT NOT NULL,
+    verification_token TEXT UNIQUE NOT NULL,
+    public_url TEXT DEFAULT '',
+    qr_data TEXT DEFAULT '',
+    view_count INTEGER DEFAULT 0,
+    active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (certificate_id) REFERENCES certificates(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS work_endorsements (
+    id TEXT PRIMARY KEY,
+    certificate_id TEXT NOT NULL,
+    endorser_id TEXT NOT NULL,
+    message TEXT DEFAULT '',
+    relationship TEXT DEFAULT 'mentor',
+    verified INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (certificate_id) REFERENCES certificates(id),
+    FOREIGN KEY (endorser_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS skill_credentials (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    skill TEXT NOT NULL,
+    source TEXT CHECK(source IN ('work_module','certificate','endorsement','manual_verify')) DEFAULT 'work_module',
+    source_id TEXT DEFAULT '',
+    level TEXT CHECK(level IN ('beginner','intermediate','advanced','expert')) DEFAULT 'intermediate',
+    verified INTEGER DEFAULT 0,
+    verified_by TEXT DEFAULT '',
+    expiry_date DATE,
+    issued_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS portfolio_work_experiences (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    company TEXT NOT NULL,
+    position TEXT NOT NULL,
+    type TEXT CHECK(type IN ('internship','volunteer','part-time','shadowing','project','freelance','micro_internship')) DEFAULT 'micro_internship',
+    start_date DATE NOT NULL,
+    end_date DATE,
+    description TEXT DEFAULT '',
+    skills_learned TEXT DEFAULT '[]',
+    certificate_id TEXT,
+    endorsement_count INTEGER DEFAULT 0,
+    status TEXT CHECK(status IN ('current','completed')) DEFAULT 'completed',
+    visible INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
 `);
 
-try { db.prepare("ALTER TABLE users ADD COLUMN parent_id TEXT DEFAULT ''").run(); } catch {}
-try { db.prepare("ALTER TABLE posts ADD COLUMN moderated INTEGER DEFAULT 0").run(); } catch {}
-try { db.prepare("ALTER TABLE comments ADD COLUMN moderated INTEGER DEFAULT 0").run(); } catch {}
+const alterMigrations = [
+  "ALTER TABLE users ADD COLUMN parent_id TEXT DEFAULT ''",
+  "ALTER TABLE posts ADD COLUMN moderated INTEGER DEFAULT 0",
+  "ALTER TABLE comments ADD COLUMN moderated INTEGER DEFAULT 0",
+  "ALTER TABLE micro_internship_enrollments ADD COLUMN progress INTEGER DEFAULT 0",
+];
+alterMigrations.forEach(sql => { try { db.prepare(sql).run(); } catch {} });
 
 export default db;

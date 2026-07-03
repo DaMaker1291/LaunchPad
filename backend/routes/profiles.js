@@ -1,10 +1,15 @@
 import { Router } from 'express';
 import db from '../database.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken, coppaCheck } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/:id', (req, res) => {
+router.get('/credentials', authenticateToken, (req, res) => {
+  const credentials = db.prepare('SELECT * FROM skill_credentials WHERE user_id = ? ORDER BY issued_at DESC').all(req.user.id);
+  res.json({ credentials });
+});
+
+router.get('/:id', coppaCheck, (req, res) => {
   const user = db.prepare(`SELECT id, name, email, age, role, cohort, avatar, bio, location,
     school, grade, interests, skills, goals, xp, level, coins, streak, verified, alumni, created_at
     FROM users WHERE id = ?`).get(req.params.id);

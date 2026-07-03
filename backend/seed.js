@@ -169,6 +169,54 @@ events.forEach(e => {
     .run(uuidv4(), e.title, e.description, e.date, e.type, e.host_id, e.tags);
 });
 
+const workModules = [
+  { company: 'TechStart Academy', title: 'Build Your First React Web App', description: 'Learn React by building a live weather dashboard from scratch. Includes step-by-step guidance, code reviews, and a completion certificate.', category: 'Web Development', difficulty: 'beginner', duration_hours: 5, steps: JSON.stringify([
+    { title: 'Project Setup & Planning', description: 'Initialize a React project with Vite and plan your component tree', deliverable: 'React project scaffolded with at least 3 planned components' },
+    { title: 'Build the Weather Card Component', description: 'Create a reusable WeatherCard component that displays temperature, humidity, and conditions', deliverable: 'WeatherCard component with props for city, temp, humidity, and condition' },
+    { title: 'Fetch Live API Data', description: 'Integrate OpenWeatherMap API to fetch real weather data', deliverable: 'Working API integration with error handling and loading states' },
+    { title: 'Add Search & City Selection', description: 'Build a search bar that lets users look up weather for any city', deliverable: 'Search functionality with autocomplete or city list' },
+    { title: 'Polish, Deploy & Submit', description: 'Style your app, deploy to Vercel/Netlify, and submit your live URL', deliverable: 'Deployed app URL with README documenting your process' },
+  ]), skills: JSON.stringify(['React', 'JavaScript', 'API Integration', 'CSS', 'Git']), deliverables: JSON.stringify(['React app', 'API integration', 'Deployed URL']), compensation: 'Certificate + Letter of Recommendation + 150 XP', sponsored: 1, spots_available: 50 },
+  { company: 'GreenEarth Initiative', title: 'Social Media Campaign for Climate Awareness', description: 'Plan, create, and execute a 1-week social media campaign about an environmental issue. Track engagement and present results.', category: 'Marketing', difficulty: 'beginner', duration_hours: 5, steps: JSON.stringify([
+    { title: 'Research & Campaign Strategy', description: 'Research your chosen environmental issue and outline a 7-post campaign strategy', deliverable: 'Campaign brief with target audience, platform selection, and content themes' },
+    { title: 'Create 3 Mock Posts', description: 'Design 3 social media posts using Canva or similar tool', deliverable: '3 high-quality mock posts with captions and hashtags' },
+    { title: 'Execute the Campaign', description: 'Post your content on a real or dummy account for 3 days', deliverable: 'Links to 3+ published posts with timestamps' },
+    { title: 'Track & Analyze Engagement', description: 'Monitor likes, shares, comments and compile an engagement report', deliverable: 'Engagement analytics report with screenshots' },
+    { title: 'Present Your Results', description: 'Create a short presentation summarizing campaign impact and key learnings', deliverable: '5-slide presentation or 2-min video summary' },
+  ]), skills: JSON.stringify(['Content Creation', 'Social Media', 'Analytics', 'Communication']), deliverables: JSON.stringify(['Campaign brief', 'Mock posts', 'Engagement report']), compensation: 'Certificate + Portfolio Feature + 200 XP', sponsored: 1, spots_available: 30 },
+  { company: 'CodeForGood Foundation', title: 'Open Source Bug Bounty Challenge', description: 'Find and fix real bugs in beginner-friendly open-source projects. Each fix earns you a verified skill and XP.', category: 'Open Source', difficulty: 'intermediate', duration_hours: 8, steps: JSON.stringify([
+    { title: 'Git & Open Source Fundamentals', description: 'Learn fork/clone/PR workflow and find a good-first-issue', deliverable: 'Screenshot of your fork + a chosen issue link' },
+    { title: 'Set Up the Dev Environment', description: 'Get the project running locally and explore the codebase', deliverable: 'Project running locally (screenshot) + quick overview of the codebase' },
+    { title: 'Fix a Bug', description: 'Implement a fix for a beginner-friendly bug', deliverable: 'Pull request with your fix and a clear description' },
+    { title: 'Code Review & Iteration', description: 'Respond to reviewer feedback and improve your fix', deliverable: 'Final approved PR merge (or maintainer approval screenshot)' },
+    { title: 'Reflection & Documentation', description: 'Write a short blog/LinkedIn post about your open source experience', deliverable: 'Published post or written reflection (300+ words)' },
+  ]), skills: JSON.stringify(['Git', 'Open Source', 'Debugging', 'Code Review', 'Technical Writing']), deliverables: JSON.stringify(['Merged PR', 'Dev setup proof', 'Reflection post']), compensation: 'Certificate + GitHub Badge + $25 Gift Card + 300 XP', sponsored: 1, spots_available: 20 },
+  { company: 'Local History Museum', title: 'Virtual Tour Script & Audio Guide', description: 'Research and write a 5-minute virtual tour script for the museum\'s youth program. Record a sample audio guide.', category: 'Writing', difficulty: 'beginner', duration_hours: 4, steps: JSON.stringify([
+    { title: 'Research Museum Exhibits', description: 'Research 3 exhibits and collect key facts, dates, and stories', deliverable: 'Research brief with 3 exhibits and 5+ facts each' },
+    { title: 'Write the Tour Script', description: 'Write a 5-minute engaging tour script aimed at 12-15 year olds', deliverable: '5-min script (600-800 words) with clear narrative arc' },
+    { title: 'Peer Review & Revisions', description: 'Get feedback from 2 peers and revise your script', deliverable: 'Revised script with peer feedback documented' },
+    { title: 'Record Audio Sample', description: 'Record a 2-minute sample narration of your tour', deliverable: 'Audio file (MP3) or voice recording link' },
+  ]), skills: JSON.stringify(['Writing', 'Research', 'Public Speaking', 'Editing']), deliverables: JSON.stringify(['Script', 'Audio file', 'Research brief']), compensation: 'Certificate + Volunteer Hours (20hr) + 150 XP', sponsored: 0, spots_available: 40 },
+  { company: 'LaunchPad Labs', title: 'Data Analysis with Python: Teen Trends Report', description: 'Analyze real anonymized survey data about teen career interests. Generate visualizations and write a trends report.', category: 'Data Science', difficulty: 'intermediate', duration_hours: 6, steps: JSON.stringify([
+    { title: 'Data Wrangling Basics', description: 'Load and clean a CSV dataset using Pandas', deliverable: 'Cleaned dataset with summary statistics' },
+    { title: 'Exploratory Analysis & Visualization', description: 'Create 3 meaningful charts using Matplotlib or Seaborn', deliverable: '3+ visualizations with written insights for each' },
+    { title: 'Statistical Insights', description: 'Find correlations and patterns in the data', deliverable: 'Written analysis of 3+ key findings with data support' },
+    { title: 'Build a Dashboard', description: 'Create an interactive dashboard using Streamlit or similar', deliverable: 'Working dashboard URL with 2+ interactive elements' },
+    { title: 'Final Report', description: 'Compile your findings into a professional report', deliverable: '4+ page report or 5-min presentation' },
+  ]), skills: JSON.stringify(['Python', 'Pandas', 'Data Visualization', 'Analytics', 'Communication']), deliverables: JSON.stringify(['Cleaned data', 'Charts', 'Dashboard', 'Report']), compensation: 'Certificate + DataCamp Voucher + 350 XP', sponsored: 1, spots_available: 25 },
+  { company: 'Youth Design Studio', title: 'Mobile App UI Design Project', description: 'Design a full mobile app interface for a teen-focused habit tracker. Learn Figma, design systems, and user testing.', category: 'Design', difficulty: 'intermediate', duration_hours: 6, steps: JSON.stringify([
+    { title: 'UX Research & Persona Creation', description: 'Define target users and create 2 user personas', deliverable: '2 user personas with goals, pain points, and scenarios' },
+    { title: 'Wireframing', description: 'Sketch low-fidelity wireframes for 5 key screens', deliverable: '5 wireframe sketches (digital or paper, scanned)' },
+    { title: 'High-Fidelity Mockups', description: 'Build polished mockups in Figma with a design system', deliverable: '5+ hi-fi mockups with consistent design system' },
+    { title: 'Interactive Prototype', description: 'Link your screens into a clickable prototype', deliverable: 'Figma prototype link with 5+ connected screens' },
+    { title: 'User Testing & Handoff', description: 'Conduct a 15-min user test and document findings', deliverable: 'User testing report with 3+ findings and proposed changes' },
+  ]), skills: JSON.stringify(['Figma', 'UI/UX Design', 'Wireframing', 'Prototyping', 'User Research']), deliverables: JSON.stringify(['Personas', 'Wireframes', 'Mockups', 'Prototype']), compensation: 'Certificate + Figma Pro License (3mo) + 300 XP', sponsored: 1, spots_available: 20 },
+];
+workModules.forEach(m => {
+  db.prepare(`INSERT INTO work_modules (id, company, title, description, category, difficulty, duration_hours, steps, skills, deliverables, compensation, sponsored, spots_available, posted_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(uuidv4(), m.company, m.title, m.description, m.category, m.difficulty, m.duration_hours, m.steps, m.skills, m.deliverables, m.compensation, m.sponsored, m.spots_available, users[4].id);
+});
+
 const resources = [
   { title: 'FreeCodeCamp', description: 'Learn to code for free with interactive lessons', url: 'https://freecodecamp.org', type: 'course', category: 'Coding', posted_by: users[0].id },
   { title: 'Khan Academy', description: 'Free world-class education for anyone, anywhere', url: 'https://khanacademy.org', type: 'course', category: 'Math', posted_by: users[1].id },
