@@ -6,6 +6,7 @@ import {
   Sparkles, Menu, X
 } from 'lucide-react';
 import { useAuth } from '../App.jsx';
+import MobileNav from './MobileNav.jsx';
 
 const NAV_ITEMS = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -31,7 +32,7 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen bg-[#09090B] text-zinc-50 overflow-hidden font-sans selection:bg-indigo-500/30">
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
       <aside className="w-64 bg-[#09090B] border-r border-zinc-800 flex flex-col hidden md:flex">
         <div className="p-6 flex items-center gap-3">
           <div className="h-9 w-9 bg-gradient-to-tr from-indigo-500 to-pink-500 rounded-xl flex items-center justify-center font-bold text-black shadow-[0_0_20px_rgba(99,102,241,0.4)]">
@@ -52,11 +53,11 @@ export default function Layout() {
                 to={item.path}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 text-sm font-medium ${
                   active
-                    ? 'bg-zinc-900 border border-zinc-800 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.05)]'
+                    ? 'bg-zinc-900 border border-zinc-800 text-neon-cyan shadow-[0_0_15px_rgba(0,245,212,0.05)]'
                     : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50 border border-transparent'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${active ? 'text-indigo-400' : 'text-zinc-500'}`} />
+                <Icon className={`w-5 h-5 ${active ? 'text-neon-cyan' : 'text-zinc-500'}`} />
                 {item.name}
               </Link>
             );
@@ -74,7 +75,7 @@ export default function Layout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
         {/* Floating Glass Header */}
-        <header className="sticky top-4 z-50 flex items-center justify-between border border-zinc-800 bg-zinc-900/75 mx-4 mt-4 px-6 py-3 rounded-2xl backdrop-blur-xl shadow-2xl">
+        <header className="sticky top-4 z-50 flex items-center justify-between border border-zinc-800 bg-zinc-900/75 mx-4 mt-4 px-4 sm:px-6 py-3 rounded-2xl backdrop-blur-xl shadow-2xl">
           <div className="flex items-center gap-3">
             <button className="md:hidden text-zinc-400 hover:text-zinc-200" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -87,19 +88,19 @@ export default function Layout() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full text-orange-400 text-sm font-medium shadow-[0_0_15px_rgba(249,115,22,0.05)]">
-              <Flame className="w-4 h-4 fill-orange-500/20" />
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 px-2.5 sm:px-3 py-1 rounded-full text-orange-400 text-xs sm:text-sm font-medium shadow-[0_0_15px_rgba(249,115,22,0.05)]">
+              <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-orange-500/20" />
               <span className="hidden sm:inline">{user?.streak || 0} Day Streak</span>
-              <span className="sm:hidden">{user?.streak || 0}</span>
+              <span className="sm:hidden">{user?.streak || 0}d</span>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full text-amber-400 text-sm font-medium">
-              <Sparkles className="w-4 h-4" />
+            <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-2.5 sm:px-3 py-1 rounded-full text-amber-400 text-xs sm:text-sm font-medium">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>{user?.coins || 0}</span>
             </div>
 
-            <button onClick={() => navigate('/profile')} className="h-9 w-9 rounded-full bg-zinc-800 border border-zinc-700 cursor-pointer hover:border-indigo-400 transition-colors flex items-center justify-center text-sm font-bold text-indigo-400">
+            <button onClick={() => navigate('/profile')} className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-zinc-800 border border-zinc-700 cursor-pointer hover:border-neon-cyan transition-colors flex items-center justify-center text-sm font-bold text-neon-cyan">
               {user?.name?.charAt(0)?.toUpperCase() || '?'}
             </button>
           </div>
@@ -120,11 +121,11 @@ export default function Layout() {
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 text-sm font-medium ${
                         active
-                          ? 'bg-zinc-900 border border-zinc-800 text-indigo-400'
+                          ? 'bg-zinc-900 border border-zinc-800 text-neon-cyan'
                           : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50 border border-transparent'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 ${active ? 'text-indigo-400' : 'text-zinc-500'}`} />
+                      <Icon className={`w-5 h-5 ${active ? 'text-neon-cyan' : 'text-zinc-500'}`} />
                       {item.name}
                     </Link>
                   );
@@ -138,12 +139,15 @@ export default function Layout() {
           </div>
         )}
 
-        {/* Page Content */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-8">
-          <div className="max-w-7xl mx-auto pt-6">
+        {/* Page Content - add bottom padding on mobile for tab bar */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-24 md:pb-8">
+          <div className="max-w-7xl mx-auto pt-4 sm:pt-6">
             <Outlet />
           </div>
         </div>
+
+        {/* Mobile Bottom Navigation */}
+        <MobileNav />
       </main>
     </div>
   );

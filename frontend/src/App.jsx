@@ -16,7 +16,10 @@ import SkillsHub from './pages/SkillsHub.jsx';
 import Rewards from './pages/Rewards.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
+import Onboarding from './pages/Onboarding.jsx';
 import { setupPushNotifications } from './services/mobile.js';
+
+const ONBOARDING_KEY = 'lp_onboarding_done';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 const AuthContext = createContext(null);
@@ -60,15 +63,18 @@ export default function App() {
     setUser(updated); localStorage.setItem('user', JSON.stringify(updated));
   };
 
-  if (loading) return <div className="flex items-center justify-center" style={{ height: '100vh', background: '#0f0f1a', color: '#a78bfa', fontSize: 20 }}>LaunchPad loading...</div>;
+  if (loading) return <div className="flex items-center justify-center" style={{ height: '100vh', background: '#09090B', color: '#00F5D4', fontSize: 20 }}>LaunchPad loading...</div>;
+
+  const onboarded = localStorage.getItem(ONBOARDING_KEY);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, updateUser }}>
       <Routes>
-        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+        <Route path="/login" element={user ? <Navigate to={onboarded ? '/' : '/onboarding'} /> : <Login />} />
+        <Route path="/register" element={user ? <Navigate to={onboarded ? '/' : '/onboarding'} /> : <Register />} />
+        <Route path="/onboarding" element={user ? <Onboarding /> : <Navigate to="/login" />} />
         <Route element={user ? <Layout /> : <Navigate to="/login" />}>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={onboarded ? <Dashboard /> : <Navigate to="/onboarding" />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/profile/:id?" element={<Profile />} />
           <Route path="/portfolio/:id?" element={<PortfolioPage />} />
