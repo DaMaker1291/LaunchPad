@@ -34,17 +34,18 @@ export default function App() {
   useEffect(() => { setupPushNotifications(); }, []);
 
   useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 5000);
     const token = localStorage.getItem('token');
     const saved = localStorage.getItem('user');
     if (token && saved) {
-      try { setUser(JSON.parse(saved)); } catch { localStorage.clear(); setLoading(false); return; }
+      try { setUser(JSON.parse(saved)); } catch { localStorage.clear(); clearTimeout(timer); setLoading(false); return; }
       fetch(`${API}/auth/login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: JSON.parse(saved).email, password: 'revalidate' })
       }).then(r => r.json()).then(d => {
         if (d.token) { login(d.token, d.user); }
-      }).catch(() => {}).finally(() => setLoading(false));
-    } else { setLoading(false); }
+      }).catch(() => {}).finally(() => { clearTimeout(timer); setLoading(false); });
+    } else { clearTimeout(timer); setLoading(false); }
   }, []);
 
   const login = (token, userData) => {
